@@ -5,3 +5,6 @@ spécialisées.
 
 [Le sujet du projet peut se trouver sur ce 
 site](bioinformatique.irisa.fr/BIF/)
+
+liens utiles:
+http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.428.6589&rep=rep1&type=pdf
