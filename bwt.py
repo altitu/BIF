@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 import tools_karkkainen_sanders as tks
 import random
@@ -119,25 +120,31 @@ def BWT2SEQ(bwt, n):
 
 
 # Cherche un pattern Q dans la bwt avec les rangs n
-def is_Q_in_S(bwt, n ,q):
+def is_Q_in_S(bwt, n, sa, q):
 	ranks = build_rank(bwt)
 	i = len(q)-2
 	c = q[i+1]
+	# Range in which we search
 	r = [LF(c, 1, n), LF(c, n[c], n)]
 	while i >= 0:
+		# Find the new range
 		r1 = [-1, -1]
-		# Find first
+		# Find first bound
 		for j in range(r[0], r[1]+1):
 			if bwt[j] == q[i] :
 				r1[0] = LF(q[i], rank(j, ranks), n)
 				break
-		# Find last
+		# Find last bound
 		for j in range(r[1], r[0]-1, -1):
 			if bwt[j] == q[i] :
 				r1[1] = LF(q[i], rank(j, ranks), n)
 				break
-		if r1[0] == -1: return False
+		# If new range has no elements, no elements found
+		if r1[0] == -1: return (False, 0)
 		i -= 1
 		r = r1
-	return True
+
+	positions = [ sa[ind] for ind in range(r[0], r[1]+1) ]
+
+	return (True, positions)
 
