@@ -5,7 +5,7 @@
 
 import bwt
 import tools_karkkainen_sanders as tks
-import prettyprint as pp
+import seedandextend as sae
 
 def main():
 
@@ -16,15 +16,15 @@ def main():
 #	respos = bwt.is_Q_in_S(b, bwt.GET_N(b), sa, "AT")
 #	print respos
 
-	s = "ACCCCTACCCCTACCCCG$"
+	s = "ACCCCGTACCCCGTACCCC$"
 	sa = tks.simple_kark_sort(s)
 	b = bwt.GET_BWT(s, sa)
 	print b
 	respos = bwt.is_Q_in_S(b, bwt.GET_N(b), sa, "ACC")
 	print respos
 
-	#data = pp.FastaFile()
-	test0 = pp.extends(respos, 1, "ACC", "TACCCC", "ACCCCTACCCCTACCCCG", 0, 1, -10)
+	#data = sae.FastaFile()
+	test0 = sae.extends(respos, 4, "ACC", "CCGTACCCC", "ACCCCGTACCCCGTACCCC", 0, 1, -10)
 	print test0
 
 
