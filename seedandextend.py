@@ -6,6 +6,17 @@
 
 #dmax correspond à 1, -1, dmax
 
+def cutread(read,dmax):
+	result = []
+	lenread = len(read)
+	if (dmax > lenread or dmax < 1):
+		except:
+			print "error: dmax value should be between of one and a read (" +lenread
+				+"), both included"
+	for i in range(0,lenread-dmax):
+		result.append(read[i:dmax+i])
+	return result
+
 '''poskr = pos_kmere_sur_read, score_match ex:0, score_mismatch ex:1, seuil par le dessus de renvoit ex: -1 exclut'''
 def extends(respos, poskr, kmere, read, genome, smatch, smismatch, seuil):
 	test = respos[0]

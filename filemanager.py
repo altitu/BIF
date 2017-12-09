@@ -3,19 +3,26 @@
 
 
 def openFasta(name):
-	#on parse le nom et on affiche le type supposé de fichier	
+	#on parse le nom et on affiche le type supposé de fichier
+	rightPos = False	
 	pos = -1
+	rightPosBar = False
 	posbar = -1
 	ln = len(name)
-	for l in range(ln-1, -1):
-		if (name[l] == '.'):
+	for l in range(ln-1, -1, -1):
+		if (name[l] == '.' and (rightPos == False)):
+			print "name: "+name[l]
 			pos = l+1
-		if (name[l] == '\\'):
+			print "pos: "+str(pos)
+			rightPos = True
+		if (name[l] == '\\' and rightPosBar == False):
 			posbar = l+1
+			rightPosBar = True
 	#nom sans slash
 	nameWObar = name[posbar:ln-1]
 
 	print("reading "+nameWObar) 
+	print name[pos:ln]
 	if (name[pos: ln] == "fasta" or name[pos: ln] == "fas" or name[pos: ln] == "fa"):
 		print("(generic FASTA file)")
 	elif (name[pos: ln] == "fna"):
