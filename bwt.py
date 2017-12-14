@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 # -*- coding: utf-8 -*-
 
 import tools_karkkainen_sanders as tks
@@ -60,23 +60,23 @@ def GET_BWT(s, sa):
 	return bwt
 
 def GET_N(bwt):
-	n = {'$' : 0, 'A' : 0, 'C' : 0, 'G' : 0, 'T' : 0}
+	n = []*5
 	for i in range(len(bwt)):
-		n[bwt[i]] += 1
+		if bwt[i] == '$': n[0] += 1
+		else if bwt[i] == 'A': n[1] += 1
+		else if bwt[i] == 'C': n[2] += 1
+		else if bwt[i] == 'G': n[3] += 1
+		else if bwt[i] == 'T': n[4] += 1
 	return n
 
-def GET_OFFSETS(n):
-	o = {}
-	o['$'] = 0
-	o['A'] = n['$']
-	o['C'] = n['A'] + o['A']
-	o['G'] = n['C'] + o['C']
-	o['T'] = n['G'] + o['G']
-	return o
-
-def LF(alpha, k, n):
-	o = GET_OFFSETS(n)
-	return o[alpha] + k - 1
+def LF(a, k, n):
+	o = 0
+	if a == '$': o = 0
+	else if a == 'A': o = n[0]
+	else if a == 'C': o = n[0]+n[1]
+	else if a == 'G': o = n[0]+n[1]+n[2]
+	else if a == 'T': o = n[0]+n[1]+n[2]+n[3]
+	return o + k - 1
 
 def build_rank(bwt):
 	prec = [0] * 5
@@ -147,4 +147,3 @@ def is_Q_in_S(bwt, n, sa, q):
 	positions = [ sa[ind] for ind in range(r[0], r[1]+1) ]
 
 	return (True, positions)
-
