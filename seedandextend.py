@@ -16,15 +16,13 @@ def cutread(read,dmax):
 	return result
 
 '''poskr = pos_kmere_sur_read, score_match ex:0, score_mismatch ex:1, seuil par le dessus de renvoit ex: -1 exclut'''
-def extends(respos, poskr, kmere, read, genome, smatch, smismatch, seuil):
-	test = respos[0]
-	tabpos_kmere_sur_genome = respos[1]
+def extends(tabpos_kmere_sur_genome, poskr, kmere, read, genome, smatch, smismatch, seuil):
 	tabresult = []
 	result = 0
 	lenread = len(read)
 	lengen = len(genome)
 	lenkmere = len(kmere)
-	if (test == True):
+	if (tabpos_kmere_sur_genome != []):
 		for poskg in tabpos_kmere_sur_genome:
 			i = 1
 			result = 0

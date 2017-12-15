@@ -141,10 +141,10 @@ def is_Q_in_S(bwt, n, sa, q):
 				r1[1] = LF(q[i], rank(j, ranks), n)
 				break
 		# If new range has no elements, no elements found
-		if r1[0] == -1: return (False, 0)
+		if r1[0] == -1: return []
 		i -= 1
 		r = r1
 
 	positions = [ sa[ind] for ind in range(r[0], r[1]+1) ]
 
-	return (True, positions)
+	return positions
