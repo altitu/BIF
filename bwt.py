@@ -59,23 +59,24 @@ def GET_BWT(s, sa):
 		bwt[i] = s[(sa[i]-1)%len(s)]
 	return bwt
 
+def getIndex(a):
+	if a == '$': return 0
+	elif a == 'A': return 1
+	elif a == 'C': return 2
+	elif a == 'G': return 3
+	elif a == 'T': return 4
+
+
 def GET_N(bwt):
-	n = []*5
+	n = [0]*5
 	for i in range(len(bwt)):
-		if bwt[i] == '$': n[0] += 1
-		else if bwt[i] == 'A': n[1] += 1
-		else if bwt[i] == 'C': n[2] += 1
-		else if bwt[i] == 'G': n[3] += 1
-		else if bwt[i] == 'T': n[4] += 1
+		n[getIndex(bwt[i])] += 1
 	return n
 
 def LF(a, k, n):
 	o = 0
-	if a == '$': o = 0
-	else if a == 'A': o = n[0]
-	else if a == 'C': o = n[0]+n[1]
-	else if a == 'G': o = n[0]+n[1]+n[2]
-	else if a == 'T': o = n[0]+n[1]+n[2]+n[3]
+	for i in range(0, getIndex(a)):
+		o += n[i]
 	return o + k - 1
 
 def build_rank(bwt):
@@ -125,7 +126,7 @@ def is_Q_in_S(bwt, n, sa, q):
 	i = len(q)-2
 	c = q[i+1]
 	# Range in which we search
-	r = [LF(c, 1, n), LF(c, n[c], n)]
+	r = [LF(c, 1, n), LF(c, n[getIndex(c)], n)]
 	while i >= 0:
 		# Find the new range
 		r1 = [-1, -1]

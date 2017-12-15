@@ -10,9 +10,7 @@ def cutread(read,dmax):
 	result = []
 	lenread = len(read)
 	if (dmax > lenread or dmax < 1):
-		except:
-			print "error: dmax value should be between of one and a read (" +lenread
-				+"), both included"
+		print "error: dmax value should be between of one and a read ({}), both included".format(lenread)
 	for i in range(0,lenread-dmax):
 		result.append(read[i:dmax+i])
 	return result
