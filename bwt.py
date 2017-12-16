@@ -4,7 +4,7 @@
 import tools_karkkainen_sanders as tks
 import random
 import time
-import fasta
+#import fasta
 
 def LCP_first(s, sa):
 	lcp = [0] * len(sa)

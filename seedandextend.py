@@ -1,7 +1,19 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-
+def revComp(string):
+	for i in range(len(string)):
+		if (string[i] == 'A'):
+			string[i] = 'T'
+		elif (string[i] == 'G'):
+			string[i] = 'C'
+		elif (string[i] == 'C'):
+			string[i] = 'G'
+		elif (string[i] == 'T'):
+			string[i] = 'A'
+		else:
+			print "error: maybe $ was left in the string, or it was uncapitalized"
+	return string
 #do we treat directly with reverse complement as mentionned in the bonus section of the subject ?
 
 #dmax correspond à 1, -1, dmax
@@ -10,9 +22,9 @@ def cutread(read,dmax):
 	result = []
 	lenread = len(read)
 	if (dmax > lenread or dmax < 1):
-		except:
+		#exception
 			print "error: dmax value should be between of one and a read (" +lenread
-				+"), both included"
+			+"), both included"
 	for i in range(0,lenread-dmax):
 		result.append(read[i:dmax+i])
 	return result

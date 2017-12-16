@@ -230,12 +230,7 @@ def openFasta(name, verbosity):
 	#on retournera un tableau de read dans 0 et de commentaire dans 1: (read, comment)*
 
 def main():
-	print "verbosity: 0"
 	print openFasta("./test_perso/test_dbPRF.fasta", 0)
-	print "verbosity: 1"
-	print openFasta("./test_perso/test_dbPRF.fasta", 1)
-	print "verbosity: 2"
-	print openFasta("./test_perso/test_dbPRF.fasta", 2)
 
 
 if (__name__ == '__main__'):
