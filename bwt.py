@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 # -*- coding: utf-8 -*-
 
 import tools_karkkainen_sanders as tks
@@ -59,24 +59,25 @@ def GET_BWT(s, sa):
 		bwt[i] = s[(sa[i]-1)%len(s)]
 	return bwt
 
+def getIndex(a):
+	if a == '$': return 0
+	elif a == 'A': return 1
+	elif a == 'C': return 2
+	elif a == 'G': return 3
+	elif a == 'T': return 4
+
+
 def GET_N(bwt):
-	n = {'$' : 0, 'A' : 0, 'C' : 0, 'G' : 0, 'T' : 0}
+	n = [0]*5
 	for i in range(len(bwt)):
-		n[bwt[i]] += 1
+		n[getIndex(bwt[i])] += 1
 	return n
 
-def GET_OFFSETS(n):
-	o = {}
-	o['$'] = 0
-	o['A'] = n['$']
-	o['C'] = n['A'] + o['A']
-	o['G'] = n['C'] + o['C']
-	o['T'] = n['G'] + o['G']
-	return o
-
-def LF(alpha, k, n):
-	o = GET_OFFSETS(n)
-	return o[alpha] + k - 1
+def LF(a, k, n):
+	o = 0
+	for i in range(0, getIndex(a)):
+		o += n[i]
+	return o + k - 1
 
 def build_rank(bwt):
 	prec = [0] * 5
@@ -125,7 +126,7 @@ def is_Q_in_S(bwt, n, sa, q):
 	i = len(q)-2
 	c = q[i+1]
 	# Range in which we search
-	r = [LF(c, 1, n), LF(c, n[c], n)]
+	r = [LF(c, 1, n), LF(c, n[getIndex(c)], n)]
 	while i >= 0:
 		# Find the new range
 		r1 = [-1, -1]
@@ -140,11 +141,10 @@ def is_Q_in_S(bwt, n, sa, q):
 				r1[1] = LF(q[i], rank(j, ranks), n)
 				break
 		# If new range has no elements, no elements found
-		if r1[0] == -1: return (False, 0)
+		if r1[0] == -1: return []
 		i -= 1
 		r = r1
 
 	positions = [ sa[ind] for ind in range(r[0], r[1]+1) ]
 
-	return (True, positions)
-
+	return positions

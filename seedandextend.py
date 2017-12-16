@@ -23,22 +23,20 @@ def cutread(read,dmax):
 	lenread = len(read)
 	if (dmax > lenread or dmax < 1):
 		#exception
-			print "error: dmax value should be between of one and a read (" +lenread
-			+"), both included"
+		print "error: dmax value should be between of one and a read ({}), both included".format(lenread)
+
 	for i in range(0,lenread-dmax):
 		result.append(read[i:dmax+i])
 	return result
 
 '''poskr = pos_kmere_sur_read, score_match ex:0, score_mismatch ex:1, seuil par le dessus de renvoit ex: -1 exclut'''
-def extends(respos, poskr, kmere, read, genome, smatch, smismatch, seuil):
-	test = respos[0]
-	tabpos_kmere_sur_genome = respos[1]
+def extends(tabpos_kmere_sur_genome, poskr, kmere, read, genome, smatch, smismatch, seuil):
 	tabresult = []
 	result = 0
 	lenread = len(read)
 	lengen = len(genome)
 	lenkmere = len(kmere)
-	if (test == True):
+	if (tabpos_kmere_sur_genome != []):
 		for poskg in tabpos_kmere_sur_genome:
 			i = 1
 			result = 0
