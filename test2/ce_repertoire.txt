@@ -1,0 +1,43 @@
+Test2 : jeu de données "puceron"
+
+Vraies données :
+ - reference_puceron_2Mb.fasta : génome de référence = 1 scaffold (partie) du génome du puceron du pois (GL349629 taille=2096827 pb, soit moins de 0.5% du génome entier)
+ - reads_1K.fasta : 1000 reads (de taille 100 pb) issus du séquençage Illumina d'un autre individu puceron.
+ - reads_100K.fasta : 100000 reads (de taille 100 pb) issus du séquençage Illumina d'un autre individu puceron.
+
+
+Le premier jeu de reads (1K) servira pour effectuer les tests de sensibilité et de performances (temps) en fonction des paramètres k et dmax. Le deuxième jeu de reads (100K) servira pour évaluer uniquement les performances en temps et en mémoire de MMM.
+
+
+Pour les tests en fonction des paramètres, on calculera le temps d'exécution et le % d'alignements retrouvés (recall) pour différentes valeurs de dmax (0, 2, 4 et 10) et de k (à vous de choisir les valeurs intéressantes). Ces résultats seront à présenter dans des tableaux (du manuel utilisateur), du type ci-dessous, et devront vous aider à orienter l'utilisateur quant au choix des valeurs de ces paramètres.
+
+dmax = 2
+|   k    |  recall (%)  |  time (s)  |
+|------------------------------------|
+|   30   |    100.0     |    6.52    |
+|   45   |    91.9      |    5.36    |
+|   ..   |    ...       |    ...     |
+|   ..   |    ...       |    ...     |
+|   ..   |    ...       |    ...     |
+|   100  |     8.9      |    0.13    |
+--------------------------------------
+
+dmax = ...
+
+
+Pour calculer le recall, nous vous donnons le nombre maximal d'alignements qu'on peut obtenir pour reads_1K.fasta pour les valeurs de dmax demandées (nb_align_bonus est le nombre total d'alignements strand=+1 et strand=-1, si on a implémenté le bonus "reverse-complement") :
+
+|   dmax    |  nb_align  |  nb_align_bonus  |
+|-------------------------------------------|
+|     0     |     11 	 |    	 18         | 
+|     2     |     123	 |    	 245  	    |
+|     4	    |     318	 |    	 650  	    |
+|    10	    |     576	 |    	 1137 	    |
+---------------------------------------------
+
+
+
+
+
+
+
