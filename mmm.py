@@ -7,10 +7,9 @@ import bwt
 import tools_karkkainen_sanders as tks
 import seedandextend as sae
 from filemanager import openFasta
+import argparse
 
-#parser les args ici
-
-def main():
+def main(refFilename, readsFilename, k, dmax):
 
 #	s = "GTATGATCAGAA$"
 #	sa = tks.simple_kark_sort(s)
@@ -20,8 +19,8 @@ def main():
 #	print respos
 
 	#s = "ACCCCGTACCCCGTACCCC$"
-	genome = openFasta("./test1/reference1.fasta", 0) #ok
-	reads = openFasta("./test1/reads.fasta", 0) #ok
+	genome = openFasta(refFilename, 0) #ok
+	reads = openFasta(readsFilename, 0) #ok
 #	genome = [['commentaire random'],['GCATGCTTTTGCCGAT']]
 #	reads = [['commentaire random'],['ATGC','TTGC']]
 	print "resultat des reads:"
@@ -30,8 +29,10 @@ def main():
 	print "et pour le genome:"
 	print s
 	sa = tks.simple_kark_sort(s)
-	b = bwt.GET_BWT(s, sa)
+	b = bwt.getBWT(s, sa)
 	print "bwt du génome:" + str(b)
+	n = bwt.getN(b)
+	ranks = bwt.buildRankArray(b)
 #	respos = bwt.is_Q_in_S(b, bwt.GET_N(b), sa, "ACC") #savoir s'il est présent dans la séquence
 #	respos = bwt.is_Q_in_S(b, bwt.GET_N(b), sa, "ATGATCAG") #savoir s'il est présent dans la séquence
 #	print  "position de match parfait obtenus: " + str(respos)
@@ -41,8 +42,23 @@ def main():
 #	test0 = sae.extends(respos, 0, "ATGATCA", "ATGATCAG", s, 0, 1, -10)
 #	print test0
 
-	sae.distributeReads(reads, 19, 5, s, b, sa)
+	sae.distributeReads(reads, k, dmax, s, b, sa, n, ranks)
 	#dmax = len(read) - max acceptable
 
 if __name__ == "__main__":
-	main()
+
+	parser = argparse.ArgumentParser(description=
+		"Finds the position and differences of reads inside a reference genome")
+
+	parser.add_argument('ref', help="Filename to reference genome")
+	parser.add_argument('reads', help="Filename to reads")
+	parser.add_argument('k', help="K-mer size", type=int)
+	parser.add_argument('dmax', help="Maximum number of allowed substitutions in a match", type=int)
+
+	args = parser.parse_args()
+
+	if args.k < 1:
+		print "Invalid parameter k"
+		exit(-1)
+
+	main(args.ref, args.reads, args.k, args.dmax)
