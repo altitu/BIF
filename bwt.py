@@ -3,6 +3,9 @@
 
 import tools_karkkainen_sanders as tks
 
+def subsampleArray(array, step):
+	return [array[i] for i in range(0, len(array), step)]
+
 # Returns the Burrows-Wheeler transform from string s and suffix array sa
 def getBWT(s, sa):
 	bwt = [0]*len(sa)
@@ -42,9 +45,28 @@ def buildRankArray(bwt):
 		rang[i] = prec[index]
 	return rang
 
+# Returns the rank of character at index `r` in BWT
+def getRank(ranks, pr, bwt, r):
+	c = bwt[r]
+	i = r
+	charCount = 0
+	# Iterate backwards until we find a sample with the same character
+	while i >= 0:
+		# if we find the same character
+		if bwt[i] == c:
+			# if sample in rank array, return sample + number of times we 
+			# found the character
+			if (i%pr)==0: return ranks[i/pr]+charCount
+			# if not a sample, increase the character count
+			else: charCount += 1
+		i -= 1
+	# If we never found a sample with same character, that means we
+	# already counted the rank
+	return charCount
+
 # Rebuilds source string from `bwt`
 # The number of occurences `n` is needed
-def getSourceFromBWT(bwt, ranks, n):
+def getSourceFromBWT(bwt, ranks, pr, n):
 	lastChar = '$'
 	lastOcc = 1
 	word = ""
@@ -52,7 +74,7 @@ def getSourceFromBWT(bwt, ranks, n):
 		# find position of last character
 		pos = lf(lastChar, lastOcc, n)
 		prevChar = bwt[pos]
-		prevOcc = ranks[pos]
+		prevOcc = getRank(ranks, pr, bwt, pos)
 		if (prevChar == '$'): break
 		# insert character in front
 		word = prevChar + word
@@ -60,13 +82,12 @@ def getSourceFromBWT(bwt, ranks, n):
 		lastOcc = prevOcc
 	return word
 
-
 """
 Returns the position in the reference of the pattern `q`
 The number of occurences `n`, the rank array `ranks`, the
 suffix array `sa` are needed 
 """
-def findSeqInBWT(bwt, n, ranks, sa, q):
+def findSeqInBWT(bwt, n, ranks, pr, sa, psa, q):
 	i = len(q)-2
 	c = q[i+1]
 	# Range in which we search
@@ -77,18 +98,29 @@ def findSeqInBWT(bwt, n, ranks, sa, q):
 		# Find first bound
 		for j in range(r[0], r[1]+1):
 			if bwt[j] == q[i] :
-				r1[0] = lf(q[i], ranks[j], n)
+				r1[0] = lf(q[i], getRank(ranks, pr, bwt, j), n)
 				break
 		# Find last bound
 		for j in range(r[1], r[0]-1, -1):
 			if bwt[j] == q[i] :
-				r1[1] = lf(q[i], ranks[j], n)
+				r1[1] = lf(q[i], getRank(ranks, pr, bwt, j), n)
 				break
 		# If new range has no elements, no elements found
 		if r1[0] == -1: return []
 		i -= 1
 		r = r1
 
-	positions = [sa[ind] for ind in range(r[0], r[1]+1)]
+	# Find positions in original text
+	positions = []
+	for ind in range(r[0], r[1]+1):
+		# Backtrack the BWT until we find a sample in the suffix array
+		i = ind
+		backtrack = 0
+		while (i%psa) != 0:
+			i = lf(bwt[i], getRank(ranks, pr, bwt, i), n)
+			backtrack += 1
+		# Add numbers of backtracks and wrap
+		result = (sa[i/psa] + backtrack)%len(bwt)
+		positions.append(result)
 
 	return positions
