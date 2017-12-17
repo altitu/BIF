@@ -9,7 +9,7 @@ import seedandextend as sae
 from filemanager import openFasta
 import argparse
 
-def main(refFilename, readsFilename, k, dmax):
+def main(refFilename, readsFilename, k, dmax, verb, outputconsole, debug):
 
 #	s = "GTATGATCAGAA$"
 #	sa = tks.simple_kark_sort(s)
@@ -50,15 +50,33 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description=
 		"Finds the position and differences of reads inside a reference genome")
 
-	parser.add_argument('ref', help="Filename to reference genome")
-	parser.add_argument('reads', help="Filename to reads")
-	parser.add_argument('k', help="K-mer size", type=int)
-	parser.add_argument('dmax', help="Maximum number of allowed substitutions in a match", type=int)
+	parser.add_argument('-rf','--ref', help="Filename to reference genome")
+	parser.add_argument('-rds','--reads', help="Filename to reads")
+	parser.add_argument('-o','--output', help="Filename to output the result", default="./output.txt")
+	parser.add_argument('-k','--kparam', help="K-mer size, default value = 20", default = 20, type=int)
+	parser.add_argument('-dmax','--dmaxparam', help="Maximum number of allowed substitutions in a match, default value = 5", default=5, type=int)
+	parser.add_argument('-v','--verbosity', action="count", default=0, help="Increase verbosity level")
+	parser.add_argument('-oc','--outputconsole', default=True, help="Print also the output to the screen", type=bool)
+	parser.add_argument('-db','--debug', default=False, help="help tracking k-mers extension and positions outputs of reads", type=bool) 
 
 	args = parser.parse_args()
 
-	if args.k < 1:
-		print "Invalid parameter k"
+#	if args.k < 1:
+#		print "Invalid parameter k"
+#		exit(-1)
+	error = 0
+	if args.reads == None or args.ref == None:
+		print "error: option ref and reads are mandatory"
+		error += 1
+	if args.kparam < 1:
+		print "error: values <1 for -k won't produce any k-mer"
+		error += 1
+	if args.dmaxparam < 0:
+		print "error: values <0 for -d won't match in any case"
+		error += 1
+
+	if error > 0:
+		print "\n{} error(s) in total".format(error)
 		exit(-1)
 
-	main(args.ref, args.reads, args.k, args.dmax)
+	main(args.ref, args.reads, args.kparam, args.dmaxparam, args.verbosity, args.outputconsole, args.debug)
