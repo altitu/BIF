@@ -6,10 +6,11 @@ import tools_karkkainen_sanders as tks
 import seedandextend as sae
 from filemanager import openFasta
 import argparse
+import time
 
 
-def main(refFilename, readsFilename, k, dmax, psa, pr, verb, outputconsole, debug, output):
-
+def main(refFilename, readsFilename, k, dmax, psa, pr, verb, outputconsole, debug, output, bench):
+	start = time.time()
 	genome = openFasta(refFilename, verb) 
 	reads = openFasta(readsFilename, verb)
 	if verb >=2 or debug:
@@ -31,6 +32,9 @@ def main(refFilename, readsFilename, k, dmax, psa, pr, verb, outputconsole, debu
 	ffile = open(output, 'w')
 	ffile.write(sae.distributeReads(reads, k, dmax, s, b, sa, psa, n, ranks, pr, verb, debug, outputconsole))
 	ffile.close()
+	end = time.time()
+	if bench:
+		print "benchmark: computations finished in {} second(s)".format(end - start)
 	#dmax = len(read) - max acceptable
 
 if __name__ == "__main__":
@@ -46,8 +50,8 @@ if __name__ == "__main__":
 		"\t\t./mmm.py ./test1/reference1.fasta ./test1/reads.fasta -v -oc\n\n"+
 		"\tvery verbose, debug mode on:\n"+
 		"\t\t./mmm.py ./test1/reference1.fasta ./test1/reads.fasta -vv -db\n\n"+
-		"\trank and suffix arrays both subsampled by a factor 2:\n"+
-		"\t\t./mmm.py ./test1/reference1.fasta ./test1/reads.fasta --psa=2 --pr=2\n\n"+
+		"\trank and suffix arrays both subsampled by a factor 2 and display computation time:\n"+
+		"\t\t./mmm.py ./test1/reference1.fasta ./test1/reads.fasta --psa=2 --pr=2 -b\n\n"+
 		"\tk = 5, rank subsampled by 2, no output on screen and output in log.txt:\n"+
 		"\t\t./mmm.py ./test1/reference1.fasta ./test1/reads.fasta -k 5 --pr 2 -oc -o ./log.txt\n",
 		formatter_class=argparse.RawTextHelpFormatter)
@@ -62,6 +66,7 @@ if __name__ == "__main__":
 	parser.add_argument('-v','--verbosity', action="count", default=0, help="Increase verbosity level")
 	parser.add_argument('-oc','--outputconsole', const=False, nargs='?', default=True, help="Print also the output to the screen (True by default)", type=bool)
 	parser.add_argument('-db','--debug', const=True, nargs='?', default=False, help="help tracking k-mers extension and positions outputs of reads (False by default)", type=bool)
+	parser.add_argument('-b','--benchmark', const=True, nargs='?', default=False, help="print total computation time from the first opening to the final closing", type=bool)
 
 	args = parser.parse_args()
 
@@ -85,4 +90,4 @@ if __name__ == "__main__":
 		print "\n{} error(s) in total".format(error)
 		exit(-1)
 
-	main(args.reference, args.reads, args.kparam, args.dmaxparam, args.psa, args.pr, args.verbosity, args.outputconsole, args.debug, args.output)
+	main(args.reference, args.reads, args.kparam, args.dmaxparam, args.psa, args.pr, args.verbosity, args.outputconsole, args.debug, args.output, args.benchmark)
