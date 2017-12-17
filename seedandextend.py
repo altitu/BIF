@@ -3,18 +3,23 @@
 
 import bwt
 
-def flattenUniq(n):
+def flattenUniq(n, isDebug):
 	#flattening
 	result = []
 	res = []
-	print "n de départ:"
-	print n
+
+	if isDebug:
+		print "n de départ:"
+		print n
+
 	for i in n:
 		for j in i:
 			if j != []:
 				result.append(j)
-	print "le n applatit:"
-	print result
+	if isDebug:
+		print "le n applatit:"
+		print result
+
 	#uniquify #à optimiser ?, bubble sort O(n²) ici
 	#nlog(n) impossible ici
 	#car on a pas de relation d'ordre <
@@ -23,9 +28,13 @@ def flattenUniq(n):
 		if result[i] != []:
 			for j in range(1, len(result)):
 					if result[j] != [] and j != i:
-						print "i= "+str(result[i])+" et j= "+str(result[j])
-						print "p1= "+str(i)+" p2= "+str(j)
-						print "etat: "+str(result)
+
+						if isDebug:
+							print "i= "+str(result[i])+" et j= "+str(result[j])
+							print "p1= "+str(i)+" p2= "+str(j)
+							print "etat: "+str(result)
+
+
 						if result[i] > result[j]:
 							temp = result[i]
 							result[i] = result[j]
@@ -34,13 +43,17 @@ def flattenUniq(n):
 							result[j] = []
 						#else < : pas besoin
 	#on recommence, un set aurait été profitable
-	print "le n unique:"
-	print result
+	if isDebug:	
+		print "le n unique:"
+		print result
+
 	for i in result:
 		if i != []:
 			res.append(i)
-	print "le resultat:"
-	print res
+	if isDebug:
+		print "le resultat:"
+		print res
+
 	return res
 				
 
@@ -78,7 +91,7 @@ def compprettyprint(a, b):
 
 
 #returne le string à écrire dans le .txt
-def distributeReads(reads, k, dmax, genome, b, sa, psa, narray, ranks, pr): #le genome doit avoir $ à la fin
+def distributeReads(reads, k, dmax, genome, b, sa, psa, narray, ranks, pr, verbosity, debug, oc): #le genome doit avoir $ à la fin
 	output = ""
 	norm_reads = reads[1] #norm_reads devient un tableau de read
 	result = []
@@ -91,19 +104,22 @@ def distributeReads(reads, k, dmax, genome, b, sa, psa, narray, ranks, pr): #le 
 		srand = 1
 		r = cutread(read, k) #on a les kmers
 		r_comp = cutread(read_comp, k)
-		print "le read "+read+" donne les kmeres:"
-		print str(r)+"\n"
-		print "le rev comp du read "+read_comp+" donne les kmeres:"
-		print str(r_comp)+"\n"
+		
+		if verbosity >=2:
+			print "le read "+read+" donne les kmeres:"
+			print str(r)+"\n"
+			print "le rev comp du read "+read_comp+" donne les kmeres:"
+			print str(r_comp)+"\n"
 		
 		i = 0
 		for kmere in r:
 			respos = bwt.findSeqInBWT(b, narray, ranks, pr, sa, psa, kmere)
 		##if len(respos) > 0:
-			print "position de match parfait obtenus pour "+str(kmere)+":"
-			print str(respos)+"\n"
+			if verbosity >=1:
+				print "position de match parfait obtenus pour "+str(kmere)+":"
+				print str(respos)+"\n"
 			#on recalcule la position du kmere dans le genome
-			rext = extends(respos, i, kmere, read, genome, 0, 1, dmax)
+			rext = extends(respos, i, kmere, read, genome, 0, 1, dmax, verbosity, debug)
 			for n in range(0, len(rext)):
 				if rext[n] != []:
 					rext[n] = respos[n] - i
@@ -115,10 +131,11 @@ def distributeReads(reads, k, dmax, genome, b, sa, psa, narray, ranks, pr): #le 
 		for kmere in r_comp:
 			respos_comp = bwt.findSeqInBWT(b, narray, ranks, pr, sa, psa, kmere)
 		##if len(respos) > 0:
-			print "position de match parfait obtenus pour "+str(kmere)+":"
-			print str(respos_comp)+"\n"
+			if verbosity >=1:
+				print "position de match parfait obtenus pour "+str(kmere)+":"
+				print str(respos_comp)+"\n"
 			#on recalcule la position du kmere dans le genome
-			rext_comp = extends(respos_comp, l, kmere, read_comp, genome, 0, 1, dmax)
+			rext_comp = extends(respos_comp, l, kmere, read_comp, genome, 0, 1, dmax, verbosity, debug)
 			for n in range(0, len(rext_comp)):
 				if rext_comp[n] != []:
 					rext_comp[n] = respos_comp[n] - l
@@ -126,12 +143,14 @@ def distributeReads(reads, k, dmax, genome, b, sa, psa, narray, ranks, pr): #le 
 			result_comp.append(rext_comp)
 			l += 1
 
-		norm_flat = flattenUniq(result)
-		print "liste des alignements pour ce read:"
-		print str(norm_flat) + "\n"
-		comp_flat = flattenUniq(result_comp)
-		print "liste des alignements pour ce read revcomp:"
-		print str(comp_flat) + "\n"
+		norm_flat = flattenUniq(result, debug)
+		if verbosity >=2:
+			print "liste des alignements pour ce read:"
+			print str(norm_flat) + "\n"
+		comp_flat = flattenUniq(result_comp, debug)
+		if verbosity >=2:
+			print "liste des alignements pour ce read revcomp:"
+			print str(comp_flat) + "\n"
 
 		if (norm_flat != [] or comp_flat != []):
 			output += ">read"+str(numread)+"\n"
@@ -162,7 +181,8 @@ def distributeReads(reads, k, dmax, genome, b, sa, psa, narray, ranks, pr): #le 
 		
 
 		numread += 1
-	print output
+	if oc:
+		print output
 	return output
 
 #cut reads into k-mer #dmax correspond à 1, -1, dmax
@@ -179,7 +199,7 @@ def cutread(read, k):
 
 '''poskr = pos_kmere_sur_read, score_match ex:0, score_mismatch ex:1, seuil par le dessus de renvoit ex: -1 exclut'''
 #rend le nombre de difference, et non la position QUI EST A RECALCULER!!!
-def extends(tabpos_kmere_sur_genome, poskr, kmere, read, genome, smatch, smismatch, seuil):
+def extends(tabpos_kmere_sur_genome, poskr, kmere, read, genome, smatch, smismatch, seuil, verbosity, debug):
 	tabresult = []
 	result = 0
 	lenread = len(read)
@@ -194,41 +214,45 @@ def extends(tabpos_kmere_sur_genome, poskr, kmere, read, genome, smatch, smismat
 					result += smatch
 				else:
 					result += smismatch
-#				print "aread " + read[poskr - i]
-#				print "ageno " + genome[poskg - i]
-#				print "pkr-i " + str(poskr - i)
-#				print "pkg-i " + str(poskg - i)
+				if debug:
+					print "aread " + read[poskr - i]
+					print "ageno " + genome[poskg - i]
+					print "pkr-i " + str(poskr - i)
+					print "pkg-i " + str(poskg - i)
 				i += 1
 			i -= 1
-			#si il reste alors smismatch * (lenkmere - i)
-			#result += max((poskg - i), (poskr - i)) * smismatch
-#			print "blabla " + str(poskg - (i + 1))
+
 			if ((poskg - (i + 1)) < 0):
-#				print "ici                                                ici"
+				if debug:
+					print "brefore kmere"
 				result += (poskr - i) * smismatch
-			print result
+			if debug:
+				print "preresult: "+str(result)
 			i = lenkmere
 			result += lenkmere * smatch
-			print "kmere " + kmere
+			if debug:
+				print "kmere " + kmere
 			while ((poskg + i < lengen) and (poskr + i < lenread)):
 				if (genome[poskg + i] == read[poskr + i]) :
 					result += smatch
 				else:
 					result += smismatch
-#				print "bread " + read[poskr + i]
-#				print "bgeno " + genome[poskg + i]
-#				print "pkr-i " + str(poskr + i)
-#				print "pkg-i " + str(poskg + i)
+				if debug:
+					print "bread " + read[poskr + i]
+					print "bgeno " + genome[poskg + i]
+					print "pkr-i " + str(poskr + i)
+					print "pkg-i " + str(poskg + i)
 				i += 1
 			i -= 1
-			#result += (lenread - (poskr + i)) * smismatch
+
 			if (poskg + i + 1 >= lengen):
-#				print "ici"
+				if debug:
+					print "after kmere"
 				result += (lenread - (poskr + i + 1)) * smismatch
-			if (result <= seuil) : #before: >
+			if (result <= seuil) :
 				tabresult.append(result)
 			else:
-				tabresult.append([]) #permet le test booleen, important
-#			print " "
+				tabresult.append([]) #is not a int
+
 	return tabresult
 
