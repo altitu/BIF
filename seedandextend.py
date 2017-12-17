@@ -1,35 +1,181 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import bwt
+
+def flattenUniq(n):
+	#flattening
+	result = []
+	res = []
+	print "n de départ:"
+	print n
+	for i in n:
+		for j in i:
+			if j != []:
+				result.append(j)
+	print "le n applatit:"
+	print result
+	#uniquify #à optimiser ?, bubble sort O(n²) ici
+	#nlog(n) impossible ici
+	#car on a pas de relation d'ordre <
+	#result n'est pas un ensemble bien fondé
+	for i in range(0, len(result)):
+		if result[i] != []:
+			for j in range(1, len(result)):
+					if result[j] != [] and j != i:
+						print "i= "+str(result[i])+" et j= "+str(result[j])
+						print "p1= "+str(i)+" p2= "+str(j)
+						print "etat: "+str(result)
+						if result[i] > result[j]:
+							temp = result[i]
+							result[i] = result[j]
+							result[j] = temp
+						elif result[i] == result[j]:
+							result[j] = []
+						#else < : pas besoin
+	#on recommence, un set aurait été profitable
+	print "le n unique:"
+	print result
+	for i in result:
+		if i != []:
+			res.append(i)
+	print "le resultat:"
+	print res
+	return res
+				
+
 def revComp(string):
-	for i in range(len(string)):
+	output = ""
+	for i in range(len(string)-1, -1, -1):
 		if (string[i] == 'A'):
-			string[i] = 'T'
+			output += 'T'
 		elif (string[i] == 'G'):
-			string[i] = 'C'
+			output += 'C'
 		elif (string[i] == 'C'):
-			string[i] = 'G'
+			output += 'G'
 		elif (string[i] == 'T'):
-			string[i] = 'A'
+			output += 'A'
 		else:
 			print "error: maybe $ was left in the string, or it was uncapitalized"
-	return string
+			output += "?"
+	
+	return output
 #do we treat directly with reverse complement as mentionned in the bonus section of the subject ?
 
-#dmax correspond à 1, -1, dmax
+#pretty print of 2 strings
+def compprettyprint(a, b):
+	output = ""
+	if len(a) != len(b):
+		print "ERROR: length of string a != length of string b!"
+	for i in range(0, len(a)):
+		if a[i] == b[i]:
+			output += "|"
+		else:
+			output += ":"
+	return output
 
-def cutread(read,dmax):
+
+#returne le string à écrire dans le .txt
+def distributeReads(reads, k, dmax, genome, b, sa): #le genome doit avoir $ à la fin
+	output = ""
+	norm_reads = reads[1] #norm_reads devient un tableau de read
+	result = []
+	result_comp = []
+	numread = 1
+	for read in norm_reads:
+		result = []
+		result_comp = []
+		output += ">read"+str(numread)+"\n"
+		read_comp = revComp(read)
+		srand = 1
+		r = cutread(read, k) #on a les kmers
+		r_comp = cutread(read_comp, k)
+		print "le read "+read+" donne les kmeres:"
+		print str(r)+"\n"
+		print "le rev comp du read "+read_comp+" donne les kmeres:"
+		print str(r_comp)+"\n"
+		
+		i = 0
+		for kmere in r:
+			respos = bwt.is_Q_in_S(b, bwt.GET_N(b), sa, kmere)
+		##if len(respos) > 0:
+			print "position de match parfait obtenus pour "+str(kmere)+":"
+			print str(respos)+"\n"
+			#on recalcule la position du kmere dans le genome
+			rext = extends(respos, i, kmere, read, genome, 0, 1, dmax)
+			for n in range(0, len(rext)):
+				if rext[n] != []:
+					rext[n] = respos[n] - i
+		##if len(rext) > 0:
+			result.append(rext)
+			i += 1
+
+		l = 0
+		for kmere in r_comp:
+			respos_comp = bwt.is_Q_in_S(b, bwt.GET_N(b), sa, kmere)
+		##if len(respos) > 0:
+			print "position de match parfait obtenus pour "+str(kmere)+":"
+			print str(respos_comp)+"\n"
+			#on recalcule la position du kmere dans le genome
+			rext_comp = extends(respos_comp, l, kmere, read_comp, genome, 0, 1, dmax)
+			for n in range(0, len(rext_comp)):
+				if rext_comp[n] != []:
+					rext_comp[n] = respos_comp[n] - l
+		##if len(rext) > 0:
+			result_comp.append(rext_comp)
+			l += 1
+
+		
+
+		norm_flat = flattenUniq(result)
+		print "liste des alignements pour ce read:"
+		print str(norm_flat) + "\n"
+		comp_flat = flattenUniq(result_comp)
+		print "liste des alignements pour ce read revcomp:"
+		print str(comp_flat) + "\n"
+
+		
+		numalign = 0
+		for i in range(0, len(norm_flat)):
+			output += "  >>alignment "+str(numalign)+"\n"
+			output += "  #pos="+str(norm_flat[i])+"\n"
+			output += "  #strand=+1"+"\n"
+			output += "  #d="+str(dmax)+"\n"
+			output += "  "+str(read)+"\n"
+			output += "  "+compprettyprint(read,genome[norm_flat[i]:norm_flat[i]+len(read)])+"\n"
+			output += "  "+	genome[norm_flat[i]:norm_flat[i]+len(read)]+"\n"
+			numalign +=1
+
+		for l in range(0, len(comp_flat)):
+			output += "  >>alignment "+str(numalign)+"\n"
+			output += "  #pos="+str(comp_flat[l])+"\n"
+			output += "  #strand=-1"+"\n"
+			output += "  #d="+str(dmax)+"\n"
+			output += "  "+str(read_comp)+"\n"
+			output += "  "+compprettyprint(read_comp,genome[comp_flat[l]:comp_flat[l]+len(read_comp)])+"\n"
+			output += "  "+	genome[comp_flat[l]:comp_flat[l]+len(read_comp)]+"\n"
+			numalign +=1
+
+		
+
+		numread += 1
+	print output
+	return output
+
+#cut reads into k-mer #dmax correspond à 1, -1, dmax
+def cutread(read, k):
 	result = []
 	lenread = len(read)
-	if (dmax > lenread or dmax < 1):
+	if (k > lenread or k < 1):
 		#exception
 		print "error: dmax value should be between of one and a read ({}), both included".format(lenread)
 
-	for i in range(0,lenread-dmax):
-		result.append(read[i:dmax+i])
+	for i in range(0, lenread-k + 1):
+		result.append(read[i:k+i])
 	return result
 
 '''poskr = pos_kmere_sur_read, score_match ex:0, score_mismatch ex:1, seuil par le dessus de renvoit ex: -1 exclut'''
+#rend le nombre de difference, et non la position QUI EST A RECALCULER!!!
 def extends(tabpos_kmere_sur_genome, poskr, kmere, read, genome, smatch, smismatch, seuil):
 	tabresult = []
 	result = 0
@@ -45,17 +191,17 @@ def extends(tabpos_kmere_sur_genome, poskr, kmere, read, genome, smatch, smismat
 					result += smatch
 				else:
 					result += smismatch
-				print "aread " + read[poskr - i]
-				print "ageno " + genome[poskg - i]
-				print "pkr-i " + str(poskr - i)
-				print "pkg-i " + str(poskg - i)
+#				print "aread " + read[poskr - i]
+#				print "ageno " + genome[poskg - i]
+#				print "pkr-i " + str(poskr - i)
+#				print "pkg-i " + str(poskg - i)
 				i += 1
 			i -= 1
 			#si il reste alors smismatch * (lenkmere - i)
 			#result += max((poskg - i), (poskr - i)) * smismatch
-			print "blabla " + str(poskg - (i + 1))
+#			print "blabla " + str(poskg - (i + 1))
 			if ((poskg - (i + 1)) < 0):
-				print "ici                                                ici"
+#				print "ici                                                ici"
 				result += (poskr - i) * smismatch
 			print result
 			i = lenkmere
@@ -66,18 +212,20 @@ def extends(tabpos_kmere_sur_genome, poskr, kmere, read, genome, smatch, smismat
 					result += smatch
 				else:
 					result += smismatch
-				print "bread " + read[poskr + i]
-				print "bgeno " + genome[poskg + i]
-				print "pkr-i " + str(poskr + i)
-				print "pkg-i " + str(poskg + i)
+#				print "bread " + read[poskr + i]
+#				print "bgeno " + genome[poskg + i]
+#				print "pkr-i " + str(poskr + i)
+#				print "pkg-i " + str(poskg + i)
 				i += 1
 			i -= 1
 			#result += (lenread - (poskr + i)) * smismatch
 			if (poskg + i + 1 >= lengen):
-				print "ici"
+#				print "ici"
 				result += (lenread - (poskr + i + 1)) * smismatch
-			if (result > seuil) :
+			if (result <= seuil) : #before: >
 				tabresult.append(result)
-			print " "
+			else:
+				tabresult.append([]) #permet le test booleen, important
+#			print " "
 	return tabresult
 

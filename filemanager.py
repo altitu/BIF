@@ -230,7 +230,8 @@ def openFasta(name, verbosity):
 	#on retournera un tableau de read dans 0 et de commentaire dans 1: (read, comment)*
 
 def main():
-	print openFasta("./test_perso/test_dbPRF.fasta", 0)
+	genome = openFasta("./test_perso/test_dbPRF.fasta", 0)
+	print genome[1][0]
 
 
 if (__name__ == '__main__'):
