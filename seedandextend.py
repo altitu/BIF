@@ -65,6 +65,7 @@ def revComp(string):
 #pretty print of 2 strings
 def compprettyprint(a, b):
 	output = ""
+	d = 0
 	if len(a) != len(b):
 		print "ERROR: length of string a != length of string b!"
 	for i in range(0, len(a)):
@@ -72,7 +73,8 @@ def compprettyprint(a, b):
 			output += "|"
 		else:
 			output += ":"
-	return output
+			d += 1
+	return (output, d)
 
 
 #returne le string à écrire dans le .txt
@@ -85,7 +87,6 @@ def distributeReads(reads, k, dmax, genome, b, sa): #le genome doit avoir $ à l
 	for read in norm_reads:
 		result = []
 		result_comp = []
-		output += ">read"+str(numread)+"\n"
 		read_comp = revComp(read)
 		srand = 1
 		r = cutread(read, k) #on a les kmers
@@ -125,8 +126,6 @@ def distributeReads(reads, k, dmax, genome, b, sa): #le genome doit avoir $ à l
 			result_comp.append(rext_comp)
 			l += 1
 
-		
-
 		norm_flat = flattenUniq(result)
 		print "liste des alignements pour ce read:"
 		print str(norm_flat) + "\n"
@@ -134,25 +133,29 @@ def distributeReads(reads, k, dmax, genome, b, sa): #le genome doit avoir $ à l
 		print "liste des alignements pour ce read revcomp:"
 		print str(comp_flat) + "\n"
 
+		if (norm_flat != [] or comp_flat != []):
+			output += ">read"+str(numread)+"\n"
 		
 		numalign = 0
 		for i in range(0, len(norm_flat)):
+			rescpp = compprettyprint(read,genome[norm_flat[i]:norm_flat[i]+len(read)])
 			output += "  >>alignment "+str(numalign)+"\n"
 			output += "  #pos="+str(norm_flat[i])+"\n"
 			output += "  #strand=+1"+"\n"
-			output += "  #d="+str(dmax)+"\n"
+			output += "  #d="+str(rescpp[1])+"\n"
 			output += "  "+str(read)+"\n"
-			output += "  "+compprettyprint(read,genome[norm_flat[i]:norm_flat[i]+len(read)])+"\n"
+			output += "  "+rescpp[0]+"\n"
 			output += "  "+	genome[norm_flat[i]:norm_flat[i]+len(read)]+"\n"
 			numalign +=1
 
 		for l in range(0, len(comp_flat)):
+			rescpp_comp = compprettyprint(read_comp,genome[comp_flat[l]:comp_flat[l]+len(read_comp)])
 			output += "  >>alignment "+str(numalign)+"\n"
 			output += "  #pos="+str(comp_flat[l])+"\n"
 			output += "  #strand=-1"+"\n"
-			output += "  #d="+str(dmax)+"\n"
+			output += "  #d="+str(rescpp_comp[1])+"\n"
 			output += "  "+str(read_comp)+"\n"
-			output += "  "+compprettyprint(read_comp,genome[comp_flat[l]:comp_flat[l]+len(read_comp)])+"\n"
+			output += "  "+rescpp_comp[0]+"\n"
 			output += "  "+	genome[comp_flat[l]:comp_flat[l]+len(read_comp)]+"\n"
 			numalign +=1
 
@@ -168,7 +171,7 @@ def cutread(read, k):
 	lenread = len(read)
 	if (k > lenread or k < 1):
 		#exception
-		print "error: dmax value should be between of one and a read ({}), both included".format(lenread)
+		print "error: k value should be between of one and a read ({}), both included".format(lenread)
 
 	for i in range(0, lenread-k + 1):
 		result.append(read[i:k+i])

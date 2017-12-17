@@ -20,10 +20,10 @@ def main():
 #	print respos
 
 	#s = "ACCCCGTACCCCGTACCCC$"
-#	genome = openFasta("./test1/reference1.fasta", 0) #ok
-#	reads = openFasta("./test1/reads.fasta", 0) #ok
-	genome = [['commentaire random'],['GCATGCTTTTGCCGAT']]
-	reads = [['commentaire random'],['ATGC','TTGC']]
+	genome = openFasta("./test1/reference1.fasta", 0) #ok
+	reads = openFasta("./test1/reads.fasta", 0) #ok
+#	genome = [['commentaire random'],['GCATGCTTTTGCCGAT']]
+#	reads = [['commentaire random'],['ATGC','TTGC']]
 	print "resultat des reads:"
 	print reads[1]
 	s = genome[1][0] + "$"
@@ -41,7 +41,7 @@ def main():
 #	test0 = sae.extends(respos, 0, "ATGATCA", "ATGATCAG", s, 0, 1, -10)
 #	print test0
 
-	sae.distributeReads(reads, 2, 1, s, b, sa)
+	sae.distributeReads(reads, 19, 5, s, b, sa)
 	#dmax = len(read) - max acceptable
 
 if __name__ == "__main__":
