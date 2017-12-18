@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import tools_karkkainen_sanders as tks
+import time
 
 def subsampleArray(array, step):
 	return [array[i] for i in range(0, len(array), step)]
@@ -29,7 +30,7 @@ def getN(bwt):
 	return n
 
 # Returns the index in suffix array of character `a` of rank `k`
-def lf(a, k, n):
+def index(a, k, n):
 	o = 0
 	for i in range(0, getIndex(a)):
 		o += n[i]
@@ -72,7 +73,7 @@ def getSourceFromBWT(bwt, ranks, pr, n):
 	word = ""
 	while True:
 		# find position of last character
-		pos = lf(lastChar, lastOcc, n)
+		pos = index(lastChar, lastOcc, n)
 		prevChar = bwt[pos]
 		prevOcc = getRank(ranks, pr, bwt, pos)
 		if (prevChar == '$'): break
@@ -82,33 +83,37 @@ def getSourceFromBWT(bwt, ranks, pr, n):
 		lastOcc = prevOcc
 	return word
 
+def getLFMapping(bwt):
+	lfmap = [[],[],[],[],[]]
+	count = [0]*5
+	for i in range(len(bwt)):
+		ind = getIndex(bwt[i])
+		count[ind] += 1
+		for j in range(5):
+			lfmap[j].append(count[j])
+	return lfmap
+
+def lf(lfmap, c, i):
+	l = lfmap[getIndex(c)]
+	return l[i-1]
+
 """
 Returns the position in the reference of the pattern `q`
 The number of occurences `n`, the rank array `ranks`, the
 suffix array `sa` are needed 
 """
-def findSeqInBWT(bwt, n, ranks, pr, sa, psa, q):
+def findSeqInBWT(bwt, n, ranks, pr, sa, psa, lfmap, q):
 	i = len(q)-2
 	c = q[i+1]
 	# Range in which we search
-	r = [lf(c, 1, n), lf(c, n[getIndex(c)], n)]
+	r = [index(c, 1, n), index(c, n[getIndex(c)], n)]
 	while i >= 0:
-		# Find the new range
-		r1 = [-1, -1]
-		# Find first bound
-		for j in range(r[0], r[1]+1):
-			if bwt[j] == q[i] :
-				r1[0] = lf(q[i], getRank(ranks, pr, bwt, j), n)
-				break
-		# Find last bound
-		for j in range(r[1], r[0]-1, -1):
-			if bwt[j] == q[i] :
-				r1[1] = lf(q[i], getRank(ranks, pr, bwt, j), n)
-				break
-		# If new range has no elements, no elements found
-		if r1[0] == -1: return []
+		prevChar = q[i]
+		newranks = [lf(lfmap, prevChar, r[0]), lf(lfmap, prevChar, r[1]+1)]
+		if newranks[0] == newranks[1]: return []
+
+		r = [index(prevChar, newranks[0]+1, n), index(prevChar, newranks[1], n)]
 		i -= 1
-		r = r1
 
 	# Find positions in original text
 	positions = []
@@ -117,7 +122,7 @@ def findSeqInBWT(bwt, n, ranks, pr, sa, psa, q):
 		i = ind
 		backtrack = 0
 		while (i%psa) != 0:
-			i = lf(bwt[i], getRank(ranks, pr, bwt, i), n)
+			i = index(bwt[i], getRank(ranks, pr, bwt, i), n)
 			backtrack += 1
 		# Add numbers of backtracks and wrap
 		result = (sa[i/psa] + backtrack)%len(bwt)

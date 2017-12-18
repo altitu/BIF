@@ -14,6 +14,7 @@ if __name__ == "__main__":
 	n =  bwt.getN(b)
 	ranks = bwt.buildRankArray(b)
 	ranks = bwt.subsampleArray(ranks, pr)
+	lfmap = bwt.getLFMapping(b)
 
 	expectations = [
 		("AT", [2,5]),
@@ -22,10 +23,29 @@ if __name__ == "__main__":
 		("GTAC", [])
 	]
 	for e in expectations:
-		res = bwt.findSeqInBWT(b, n, ranks, pr, sa, psa, e[0])
+		res = bwt.findSeqInBWT(b, n, ranks, pr, sa, psa, lfmap, e[0])
 		if (len(e[1]) != len(res)):
-			print "Different number of results for " + e[0] + " : "
+			print "Different number of results for " + e[0] + " : " + str(res)
 		for v in res:
 			if v not in e[1]: print "Result not in expectation for " + e[0]
 		for v in e[1]:
 			if v not in res: print "Expectation not in result for " + e[0]
+
+
+	source = bwt.getSourceFromBWT(b, ranks, pr, n) + "$"
+	if source != s:
+		print "Source not matching : " + source
+
+	print "BWT =", b
+	print "LFmap =", lfmap
+	print "SA =", sa
+	print "Ranks =", ranks
+	print "N =", n
+
+
+	for c in ['$', 'A', 'C', 'G', 'T']:
+		st = c + " "
+		for i in range(1, len(b)+1):
+			st += str(bwt.lf(lfmap, c, i)) + " "
+		print st
+
