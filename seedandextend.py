@@ -83,9 +83,8 @@ def compprettyprint(a, b):
 			d += 1
 	return (output, d)
 
-
 #return the string to be outputed in a specified file (see mmm.py) for the user
-def distributeReads(reads, k, dmax, genome, b, sa, psa, narray, ranks, pr, lfmap, verbosity, debug, oc): #the genome sequence should be provided with an "$" ending
+def distributeReads(reads, k, dmax, genome, b, sa, psa, narray, ranks, pr, verbosity, debug, oc): #the genome sequence should be provided with an "$" ending
 	output = ""
 	norm_reads = reads[1] #norm_reads becomes a read array
 	result = []
@@ -119,7 +118,7 @@ def distributeReads(reads, k, dmax, genome, b, sa, psa, narray, ranks, pr, lfmap
 		i = 0
 		for kmere in r:
 			start = time.time()
-			respos = bwt.findSeqInBWT(b, narray, ranks, pr, sa, psa, lfmap, kmere)
+			respos = bwt.findSeqInBWT(b, narray, ranks, pr, sa, psa, kmere)
 		##if len(respos) > 0:
 			if verbosity >=1:
 				print "perfect match position obtained for "+str(kmere)+":"
@@ -135,7 +134,7 @@ def distributeReads(reads, k, dmax, genome, b, sa, psa, narray, ranks, pr, lfmap
 
 		l = 0
 		for kmere in r_comp:
-			respos_comp = bwt.findSeqInBWT(b, narray, ranks, pr, sa, psa, lfmap, kmere)
+			respos_comp = bwt.findSeqInBWT(b, narray, ranks, pr, sa, psa, kmere)
 		##if len(respos) > 0:
 			if verbosity >=1:
 				print "perfect match position obtained for "+str(kmere)+":"
