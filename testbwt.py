@@ -14,11 +14,24 @@ if __name__ == "__main__":
 	n =  bwt.getN(b)
 	ranks = bwt.buildRankArray(b, pr)
 
+	print "BWT =", b
+	print "SA =", sa
+	print "N =", n
+	print "Raw ranks = ", ranks
+	print "Ranks ="
+	for c in ['$', 'A', 'C', 'G', 'T']:
+		st = c + " "
+		for i in range(0, len(b)):
+			st += str(bwt.rank(ranks, pr, b, c, i)) + " "
+		print st
+
+
 	expectations = [
 		("AT", [2,5]),
 		("AGAA", [8]),
 		("TAT", [1]),
-		("GTAC", [])
+		("GTAC", []),
+		("GTATGATCAGAA", [0])
 	]
 	for e in expectations:
 		res = bwt.findSeqInBWT(b, n, ranks, pr, sa, psa, e[0])
@@ -34,14 +47,4 @@ if __name__ == "__main__":
 	if source != s:
 		print "Source not matching : " + source
 
-	print "BWT =", b
-	print "SA =", sa
-	print "N =", n
-	print "Raw ranks = ", ranks
-	print "Ranks ="
-	for c in ['$', 'A', 'C', 'G', 'T']:
-		st = c + " "
-		for i in range(0, len(b)):
-			st += str(bwt.rank(ranks, pr, b, c, i)) + " "
-		print st
 

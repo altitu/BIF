@@ -34,7 +34,7 @@ def lf(n, a, k):
 	o = 0
 	for i in range(0, getIndex(a)):
 		o += n[i]
-	return o + k - 1
+	return o + k
 
 # Builds the rank array from `bwt`
 def buildRankArray(bwt, pr):
@@ -45,7 +45,6 @@ def buildRankArray(bwt, pr):
 		count[ind] += 1
 		for j in range(len(ranks)):
 			ranks[j].append(count[j])
-
 	for i in range(len(ranks)):
 		ranks[i] = subsampleArray(ranks[i], pr)
 	return ranks
@@ -53,25 +52,13 @@ def buildRankArray(bwt, pr):
 def rank(ranks, pr, bwt, c, i):
 	l = ranks[getIndex(c)]
 	charCount = 0
-	while i >= 0:
-		if bwt[i] == c:
-			if (i%pr)==0: return l[i/pr]+charCount
-			else: charCount += 1
-		i -= 1
-	return charCount
-
-# Returns the rank of character at index `r` in BWT
-def getRank(ranks, pr, bwt, r):
-	c = bwt[r]
-	i = r
-	charCount = 0
 	# Iterate backwards until we find a sample with the same character
 	while i >= 0:
 		# if we find the same character
 		if bwt[i] == c:
 			# if sample in rank array, return sample + number of times we 
 			# found the character
-			if (i%pr)==0: return ranks[i/pr]+charCount
+			if (i%pr)==0: return l[i/pr]+charCount
 			# if not a sample, increase the character count
 			else: charCount += 1
 		i -= 1
@@ -83,13 +70,13 @@ def getRank(ranks, pr, bwt, r):
 # The number of occurences `n` is needed
 def getSourceFromBWT(bwt, ranks, pr, n):
 	lastChar = '$'
-	lastOcc = 1
+	lastOcc = 0
 	word = ""
 	while True:
 		# find position of last character
 		pos = lf(n, lastChar, lastOcc)
 		prevChar = bwt[pos]
-		prevOcc = rank(ranks, pr, bwt, prevChar, pos)
+		prevOcc = rank(ranks, pr, bwt, prevChar, pos-1)
 		if (prevChar == '$'): break
 		# insert character in front
 		word = prevChar + word
@@ -106,12 +93,12 @@ def findSeqInBWT(bwt, n, ranks, pr, sa, psa, q):
 	i = len(q)-2
 	c = q[i+1]
 	# Range in which we search
-	r = [lf(n, c, 1), lf(n, c, n[getIndex(c)])]
+	r = [lf(n, c, 0), lf(n, c, n[getIndex(c)]-1)]
 	while i >= 0:
 		prevChar = q[i]
-		newranks = [rank(ranks, pr, bwt, prevChar, r[0]+1), rank(ranks, pr, bwt, prevChar, r[1])]
-		if newranks[0] > newranks[1]: return []
-		r = [lf(n, prevChar, newranks[0]), lf(n, prevChar, newranks[1])]
+		newranks = [rank(ranks, pr, bwt, prevChar, r[0]-1), rank(ranks, pr, bwt, prevChar, r[1])]
+		if newranks[0] == newranks[1]: return []
+		r = [lf(n, prevChar, newranks[0]), lf(n, prevChar, newranks[1]-1)]
 		i -= 1
 
 	# Find positions in original text
