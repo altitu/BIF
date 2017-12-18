@@ -10,7 +10,7 @@ def flattenUniq(n, isDebug):
 	res = []
 
 	if isDebug:
-		print "n de départ:"
+		print "starting n:"
 		print n
 
 	for i in n:
@@ -18,13 +18,13 @@ def flattenUniq(n, isDebug):
 			if j != []:
 				result.append(j)
 	if isDebug:
-		print "le n applatit:"
+		print "flattened n:"
 		print result
 
-	#uniquify #à optimiser ?, bubble sort O(n²) ici
-	#nlog(n) impossible ici
-	#car on a pas de relation d'ordre <
-	#result n'est pas un ensemble bien fondé
+	#uniquify could probably be optimised
+	#nlog(n) is not reachable here
+	#we do not have a partially ordered set "<"
+	#the result is not a well-founded relation
 	for i in range(0, len(result)):
 		if result[i] != []:
 			for j in range(1, len(result)):
@@ -33,27 +33,20 @@ def flattenUniq(n, isDebug):
 						if isDebug:
 							print "i= "+str(result[i])+" et j= "+str(result[j])
 							print "p1= "+str(i)+" p2= "+str(j)
-							print "etat: "+str(result)
+							print "state: "+str(result)
 
-
-#						if result[i] > result[j]:
-#							temp = result[i]
-#							result[i] = result[j]
-#							result[j] = temp
-#						elif result[i] == result[j]:
 						if result[i] == result[j]:
 							result[j] = []
-						#else < : pas besoin
-	#on recommence, un set aurait été profitable
+	#Because we can't use set()
 	if isDebug:	
-		print "le n unique:"
+		print "n only:"
 		print result
 
 	for i in result:
 		if i != []:
 			res.append(i)
 	if isDebug:
-		print "le resultat:"
+		print "the result:"
 		print res
 
 	return res
@@ -75,7 +68,6 @@ def revComp(string):
 			output += "?"
 	
 	return output
-#do we treat directly with reverse complement as mentionned in the bonus section of the subject ?
 
 #pretty print of 2 strings
 def compprettyprint(a, b):
@@ -92,10 +84,10 @@ def compprettyprint(a, b):
 	return (output, d)
 
 
-#returne le string à écrire dans le .txt
-def distributeReads(reads, k, dmax, genome, b, sa, psa, narray, ranks, pr, lfmap, verbosity, debug, oc): #le genome doit avoir $ à la fin
+#return the string to be outputed in a specified file (see mmm.py) for the user
+def distributeReads(reads, k, dmax, genome, b, sa, psa, narray, ranks, pr, lfmap, verbosity, debug, oc): #the genome sequence should be provided with an "$" ending
 	output = ""
-	norm_reads = reads[1] #norm_reads devient un tableau de read
+	norm_reads = reads[1] #norm_reads becomes a read array
 	result = []
 	result_comp = []
 	numread = 1
@@ -108,7 +100,7 @@ def distributeReads(reads, k, dmax, genome, b, sa, psa, narray, ranks, pr, lfmap
 		if (1.0*numread/nb_reads)*100%10 == 0:
 			nowtime = time.time()
 			pourcentage = (1.0*numread/nb_reads)*100
-			print "{}% finished, time remaining: {} ".format((1.0*numread/nb_reads*100),
+			print "{}% finished, time remaining: {} second(s)".format((1.0*numread/nb_reads*100),
 					(nowtime-firsttime)* ((100 -pourcentage)/pourcentage))
 		
 		result = []
@@ -119,9 +111,9 @@ def distributeReads(reads, k, dmax, genome, b, sa, psa, narray, ranks, pr, lfmap
 		r_comp = cutread(read_comp, k)
 		
 		if verbosity >=2:
-			print "le read "+read+" donne les kmeres:"
+			print "the read "+read+" returns the following k-mers:"
 			print str(r)+"\n"
-			print "le rev comp du read "+read_comp+" donne les kmeres:"
+			print "the reverse complement (revcomp) of read "+read_comp+" returns the following k-mers:"
 			print str(r_comp)+"\n"
 		
 		i = 0
@@ -130,9 +122,9 @@ def distributeReads(reads, k, dmax, genome, b, sa, psa, narray, ranks, pr, lfmap
 			respos = bwt.findSeqInBWT(b, narray, ranks, pr, sa, psa, lfmap, kmere)
 		##if len(respos) > 0:
 			if verbosity >=1:
-				print "position de match parfait obtenus pour "+str(kmere)+":"
+				print "perfect match position obtained for "+str(kmere)+":"
 				print str(respos)+"\n"
-			#on recalcule la position du kmere dans le genome
+			#We compute again the abolutes positions of the kmers with respect to the genome sequence
 			rext = extends(respos, i, kmere, read, genome, 0, 1, dmax, verbosity, debug)
 			for n in range(0, len(rext)):
 				if rext[n] != []:
@@ -146,9 +138,9 @@ def distributeReads(reads, k, dmax, genome, b, sa, psa, narray, ranks, pr, lfmap
 			respos_comp = bwt.findSeqInBWT(b, narray, ranks, pr, sa, psa, lfmap, kmere)
 		##if len(respos) > 0:
 			if verbosity >=1:
-				print "position de match parfait obtenus pour "+str(kmere)+":"
+				print "perfect match position obtained for "+str(kmere)+":"
 				print str(respos_comp)+"\n"
-			#on recalcule la position du kmere dans le genome
+			#We compute again the abolutes positions of the kmers with respect to the genome sequence
 			rext_comp = extends(respos_comp, l, kmere, read_comp, genome, 0, 1, dmax, verbosity, debug)
 			for n in range(0, len(rext_comp)):
 				if rext_comp[n] != []:
@@ -159,11 +151,11 @@ def distributeReads(reads, k, dmax, genome, b, sa, psa, narray, ranks, pr, lfmap
 
 		norm_flat = flattenUniq(result, debug)
 		if verbosity >=2:
-			print "liste des alignements pour ce read:"
+			print "list of alignments for this read:"
 			print str(norm_flat) + "\n"
 		comp_flat = flattenUniq(result_comp, debug)
 		if verbosity >=2:
-			print "liste des alignements pour ce read revcomp:"
+			print "list of alignments for this read revcomp:"
 			print str(comp_flat) + "\n"
 
 		if (norm_flat != [] or comp_flat != []):
@@ -199,20 +191,21 @@ def distributeReads(reads, k, dmax, genome, b, sa, psa, narray, ranks, pr, lfmap
 		print output
 	return output
 
-#cut reads into k-mer #dmax correspond à 1, -1, dmax
+#cut reads into k-mers
 def cutread(read, k):
 	result = []
 	lenread = len(read)
 	if (k > lenread or k < 1):
 		#exception
 		print "error: k value should be between of one and a read ({}), both included".format(lenread)
-
+		exit(-1)
 	for i in range(0, lenread-k + 1):
 		result.append(read[i:k+i])
 	return result
 
-'''poskr = pos_kmere_sur_read, score_match ex:0, score_mismatch ex:1, seuil par le dessus de renvoit ex: -1 exclut'''
-#rend le nombre de difference, et non la position QUI EST A RECALCULER!!!
+#extends output the number of difference between the match found and the read sequence, or [] if that number is > to dmax
+#it does not provide any position informations
+#such informations are computed in distributeReads()
 def extends(tabpos_kmere_sur_genome, poskr, kmere, read, genome, smatch, smismatch, seuil, verbosity, debug):
 	tabresult = []
 	result = 0
