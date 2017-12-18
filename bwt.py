@@ -7,12 +7,14 @@ import time
 def subsampleArray(array, step):
 	return [array[i] for i in range(0, len(array), step)]
 
-# Returns the Burrows-Wheeler transform from string s and suffix array sa
-def getBWT(s, sa):
+# Returns the Burrows-Wheeler transform and suffix array from string
+def getBWTAndSA(s, psa):
+	sa = tks.simple_kark_sort(s)
 	bwt = [0]*len(sa)
 	for i in range(len(sa)):
 		bwt[i] = s[(sa[i]-1)%len(s)]
-	return bwt
+	newsa = subsampleArray(sa, psa)
+	return (bwt, sa)
 
 # Returns index associated with character for storing
 def getIndex(a):
@@ -108,7 +110,7 @@ def findSeqInBWT(bwt, n, ranks, pr, sa, psa, q):
 		i = ind
 		backtrack = 0
 		while (i%psa) != 0:
-			i = lf(n, bwt[i], rank(ranks, pr, bwt, bwt[i], i))
+			i = lf(n, bwt[i], rank(ranks, pr, bwt, bwt[i], i)-1)
 			backtrack += 1
 		# Add numbers of backtracks and wrap
 		result = (sa[i/psa] + backtrack)%len(bwt)

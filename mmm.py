@@ -13,32 +13,33 @@ def main(refFilename, readsFilename, k, dmax, psa, pr, verb, outputconsole, debu
 	start = time.time()
 	genome = openFasta(refFilename, verb) 
 	reads = openFasta(readsFilename, verb)
-	if verb >=2 or debug:
+
+	if verb >= 2 or debug:
 		print "read results of reads sequence:"
 		print reads[1]
 	s = genome[1][0] + "$"
 	if verb >= 2 or debug:
 		print "read results of genome sequence:"
 		print s
-	sa = tks.simple_kark_sort(s)
-	b = bwt.getBWT(s, sa)
-	sa = bwt.subsampleArray(sa, psa)
+	b, sa = bwt.getBWTAndSA(s, psa)
 	if verb >= 1:
 		print "genome BWT:" + str(b)
 	n = bwt.getN(b)
 	ranks = bwt.buildRankArray(b, pr)
-	
+
 	mid = time.time()
 
 	if bench:
 		print "BWT : {} seconds(s)".format(mid-start)
+
+	mid2 = time.time()
 
 	ffile = open(output, 'w')
 	ffile.write(sae.distributeReads(reads, k, dmax, s, b, sa, psa, n, ranks, pr, verb, debug, outputconsole))
 	ffile.close()
 	end = time.time()
 	if bench:
-		print "benchmark: computations finished in {} second(s)".format(end - start)
+		print "benchmark: computations finished in {} second(s)".format((end - mid2)+(mid-start))
 
 	#dmax = len(read) - max acceptable
 
