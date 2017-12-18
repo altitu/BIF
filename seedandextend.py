@@ -99,7 +99,18 @@ def distributeReads(reads, k, dmax, genome, b, sa, psa, narray, ranks, pr, lfmap
 	result = []
 	result_comp = []
 	numread = 1
+
+	nb_reads = len(norm_reads)
+	firsttime = time.time()
+
 	for read in norm_reads:
+		
+		if (1.0*numread/nb_reads)*100%10 == 0:
+			nowtime = time.time()
+			pourcentage = (1.0*numread/nb_reads)*100
+			print "{}% finished, time remaining: {} ".format((1.0*numread/nb_reads*100),
+					(nowtime-firsttime)* ((100 -pourcentage)/pourcentage))
+		
 		result = []
 		result_comp = []
 		read_comp = revComp(read)
@@ -117,7 +128,6 @@ def distributeReads(reads, k, dmax, genome, b, sa, psa, narray, ranks, pr, lfmap
 		for kmere in r:
 			start = time.time()
 			respos = bwt.findSeqInBWT(b, narray, ranks, pr, sa, psa, lfmap, kmere)
-			seedtime = time.time()
 		##if len(respos) > 0:
 			if verbosity >=1:
 				print "position de match parfait obtenus pour "+str(kmere)+":"
@@ -129,9 +139,6 @@ def distributeReads(reads, k, dmax, genome, b, sa, psa, narray, ranks, pr, lfmap
 					rext[n] = respos[n] - i
 		##if len(rext) > 0:
 			result.append(rext)
-			exttime = time.time()
-			print "Seed time = {}".format(seedtime-start)
-			print "Extend time = {}".format(exttime-seedtime)
 			i += 1
 
 		l = 0
