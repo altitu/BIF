@@ -93,7 +93,7 @@ def compprettyprint(a, b):
 
 
 #returne le string à écrire dans le .txt
-def distributeReads(reads, k, dmax, genome, b, sa, psa, narray, ranks, pr, lfmap, verbosity, debug, oc): #le genome doit avoir $ à la fin
+def distributeReads(reads, k, dmax, genome, b, sa, psa, narray, ranks, pr, verbosity, debug, oc): #le genome doit avoir $ à la fin
 	output = ""
 	norm_reads = reads[1] #norm_reads devient un tableau de read
 	result = []
@@ -127,7 +127,7 @@ def distributeReads(reads, k, dmax, genome, b, sa, psa, narray, ranks, pr, lfmap
 		i = 0
 		for kmere in r:
 			start = time.time()
-			respos = bwt.findSeqInBWT(b, narray, ranks, pr, sa, psa, lfmap, kmere)
+			respos = bwt.findSeqInBWT(b, narray, ranks, pr, sa, psa, kmere)
 		##if len(respos) > 0:
 			if verbosity >=1:
 				print "position de match parfait obtenus pour "+str(kmere)+":"
@@ -143,7 +143,7 @@ def distributeReads(reads, k, dmax, genome, b, sa, psa, narray, ranks, pr, lfmap
 
 		l = 0
 		for kmere in r_comp:
-			respos_comp = bwt.findSeqInBWT(b, narray, ranks, pr, sa, psa, lfmap, kmere)
+			respos_comp = bwt.findSeqInBWT(b, narray, ranks, pr, sa, psa, kmere)
 		##if len(respos) > 0:
 			if verbosity >=1:
 				print "position de match parfait obtenus pour "+str(kmere)+":"
