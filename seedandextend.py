@@ -35,11 +35,12 @@ def flattenUniq(n, isDebug):
 							print "etat: "+str(result)
 
 
-						if result[i] > result[j]:
-							temp = result[i]
-							result[i] = result[j]
-							result[j] = temp
-						elif result[i] == result[j]:
+#						if result[i] > result[j]:
+#							temp = result[i]
+#							result[i] = result[j]
+#							result[j] = temp
+#						elif result[i] == result[j]:
+						if result[i] == result[j]:
 							result[j] = []
 						#else < : pas besoin
 	#on recommence, un set aurait été profitable
