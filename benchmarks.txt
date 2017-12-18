@@ -1,0 +1,39 @@
+dmax = 0
+
+nb_align:18
+
+k = 20: align : 18 time: 46.84
+k = 40: time:43.71
+k = 60:41.68
+k = 80:38.80
+k = 100: align: 18 time: 35.29
+
+dmax = 2
+
+nb_align:245
+
+k = 20: align:245 time:46.42
+k = 40: align:240 time:44.10
+k = 60: align:135 time:41.43
+k = 80: align:61 time:38.60
+k = 100: align: 18 time:35.22
+
+dmax = 4
+
+nb_align:650
+
+k = 20:align:650 time:46.39
+k = 40:align:544 time:44.64
+k = 60:align:221 time:41.88
+k = 80:align:70 time:38.53
+k = 100:align:18 time:35.30
+
+dmax = 10
+
+nb_align:1137
+
+k = 20:align:1122 time:46.53
+k = 40:align:666 time:44.36
+k = 60:align:237 time:41.75
+k = 80:align:70 time:39.15
+k = 100:align:18 time:35.48

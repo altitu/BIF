@@ -14,7 +14,7 @@ def getBWTAndSA(s, psa):
 	for i in range(len(sa)):
 		bwt[i] = s[(sa[i]-1)%len(s)]
 	newsa = subsampleArray(sa, psa)
-	return (bwt, sa)
+	return (bwt, newsa)
 
 # Returns index associated with character for storing
 def getIndex(a):
@@ -53,37 +53,30 @@ def buildRankArray(bwt, pr):
 
 def rank(ranks, pr, bwt, c, i):
 	l = ranks[getIndex(c)]
+	if i<0: return 0
 	charCount = 0
-	# Iterate backwards until we find a sample with the same character
-	while i >= 0:
-		# if we find the same character
-		if bwt[i] == c:
-			# if sample in rank array, return sample + number of times we 
-			# found the character
-			if (i%pr)==0: return l[i/pr]+charCount
-			# if not a sample, increase the character count
-			else: charCount += 1
-		i -= 1
-	# If we never found a sample with same character, that means we
-	# already counted the rank
-	return charCount
+	prevI = i/pr
+	# Get the previous sample and count the number of same characters
+	for j in range(i, prevI*pr, -1):
+		if bwt[j] == c: charCount += 1
+	return l[prevI]+charCount
 
 # Rebuilds source string from `bwt`
 # The number of occurences `n` is needed
 def getSourceFromBWT(bwt, ranks, pr, n):
 	lastChar = '$'
-	lastOcc = 0
+	lastRank = 0
 	word = ""
 	while True:
 		# find position of last character
-		pos = lf(n, lastChar, lastOcc)
+		pos = lf(n, lastChar, lastRank)
 		prevChar = bwt[pos]
-		prevOcc = rank(ranks, pr, bwt, prevChar, pos-1)
+		prevRank = rank(ranks, pr, bwt, prevChar, pos-1)
 		if (prevChar == '$'): break
 		# insert character in front
 		word = prevChar + word
 		lastChar = prevChar
-		lastOcc = prevOcc
+		lastRank = prevRank
 	return word
 
 """
@@ -110,7 +103,9 @@ def findSeqInBWT(bwt, n, ranks, pr, sa, psa, q):
 		i = ind
 		backtrack = 0
 		while (i%psa) != 0:
-			i = lf(n, bwt[i], rank(ranks, pr, bwt, bwt[i], i)-1)
+			c = bwt[i]
+			r = rank(ranks, pr, bwt, c, i-1)
+			i = lf(n, c, r)
 			backtrack += 1
 		# Add numbers of backtracks and wrap
 		result = (sa[i/psa] + backtrack)%len(bwt)

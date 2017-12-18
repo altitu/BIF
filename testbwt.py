@@ -8,9 +8,7 @@ if __name__ == "__main__":
 	psa = int(sys.argv[1])
 	pr = int(sys.argv[2])
 	s = "GTATGATCAGAA$"
-	sa = tks.simple_kark_sort(s)
-	b = bwt.getBWT(s, sa)
-	sa = bwt.subsampleArray(sa, psa)
+	b, sa = bwt.getBWTAndSA(s, psa)
 	n =  bwt.getN(b)
 	ranks = bwt.buildRankArray(b, pr)
 
