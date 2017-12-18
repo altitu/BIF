@@ -28,13 +28,20 @@ def main(refFilename, readsFilename, k, dmax, psa, pr, verb, outputconsole, debu
 	n = bwt.getN(b)
 	ranks = bwt.buildRankArray(b)
 	ranks = bwt.subsampleArray(ranks, pr)
+	lfmap = bwt.getLFMapping(b)
+	
+	mid = time.time()
+
+	if bench:
+		print "BWT : {} seconds(s)".format(mid-start)
 
 	ffile = open(output, 'w')
-	ffile.write(sae.distributeReads(reads, k, dmax, s, b, sa, psa, n, ranks, pr, verb, debug, outputconsole))
+	ffile.write(sae.distributeReads(reads, k, dmax, s, b, sa, psa, n, ranks, pr, lfmap, verb, debug, outputconsole))
 	ffile.close()
 	end = time.time()
 	if bench:
 		print "benchmark: computations finished in {} second(s)".format(end - start)
+
 	#dmax = len(read) - max acceptable
 
 if __name__ == "__main__":
